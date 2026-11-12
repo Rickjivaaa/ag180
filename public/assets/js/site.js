@@ -83,6 +83,99 @@ function countUp(el) {
   requestAnimationFrame(step);
 }
 
+/* Relevo do hero: curvas de nível geradas uma vez */
+const topo = $('#topo');
+if (topo) {
+  let d = '';
+  for (let k = 0; k < 16; k++) {
+    const y0 = 60 + k * 52, a = 26 + (k % 5) * 9, f = 0.004 + (k % 3) * 0.0012, ph = k * 0.7;
+    let p = `M-50 ${y0}`;
+    for (let x = -50; x <= 1450; x += 25) p += ` L${x} ${(y0 + Math.sin(x * f + ph) * a + Math.cos(x * f * 0.5 + ph * 1.7) * a * 0.6).toFixed(1)}`;
+    d += `<path d="${p}"/>`;
+  }
+  topo.innerHTML = `<g>${d}</g>`;
+}
+
+/* Efeitos ligados à rolagem: um listener, leitura em rAF, só mexe no DOM quando muda */
+const scrubs = $$('[data-scrub]').map((el) => {
+  const walk = (node) => [...node.childNodes].forEach((n) => {
+    if (n.nodeType === 3) {
+      const frag = document.createDocumentFragment();
+      n.textContent.split(/(\s+)/).forEach((t) => {
+        if (!t) return;
+        if (/^\s+$/.test(t)) frag.append(t);
+        else { const s = document.createElement('span'); s.className = 'w'; s.textContent = t; frag.append(s); }
+      });
+      n.replaceWith(frag);
+    } else walk(n);
+  });
+  walk(el);
+  return { el, words: $$('.w', el), lit: -1 };
+});
+const cards = $$('.mcard');
+cards.forEach((c, i) => c.style.setProperty('--i', i));
+const stairs = $$('.stairs');
+const clamp01 = (v) => Math.max(0, Math.min(1, v));
+function scrollFx() {
+  const vh = innerHeight;
+  for (const s of scrubs) {
+    const r = s.el.getBoundingClientRect();
+    const p = reduce ? 1 : clamp01((vh * 0.85 - r.top) / (r.height + vh * 0.35));
+    const n = Math.round(p * s.words.length);
+    if (n !== s.lit) { s.words.forEach((w, i) => w.classList.toggle('on', i < n)); s.lit = n; }
+  }
+  let active = -1;
+  cards.forEach((c, i) => { if (c.getBoundingClientRect().top < vh * 0.6) active = i; });
+  cards.forEach((c, i) => c.classList.toggle('on', i === active));
+  for (const s of stairs) {
+    const r = s.getBoundingClientRect();
+    s.style.setProperty('--draw', reduce ? 0 : 1 - clamp01((vh * 0.9 - r.top) / (vh * 0.5)));
+  }
+}
+if (scrubs.length || cards.length || stairs.length) {
+  let fxTick = false;
+  addEventListener('scroll', () => { if (!fxTick) { fxTick = true; requestAnimationFrame(() => { scrollFx(); fxTick = false; }); } }, { passive: true });
+  addEventListener('resize', scrollFx);
+  scrollFx();
+}
+
+/* Palavra digitando */
+$$('.rot').forEach((el) => {
+  const words = el.dataset.words.split('|');
+  if (reduce) return;
+  let w = 0, c = words[0].length, del = true;
+  const tick = () => {
+    if (del) { c--; if (c <= 0) { del = false; w = (w + 1) % words.length; } }
+    else { c++; if (c >= words[w].length) { del = true; el.textContent = words[w]; return setTimeout(tick, 1800); } }
+    el.textContent = words[w].slice(0, Math.max(c, 0)) || '\u200b';
+    setTimeout(tick, del ? 40 : 75);
+  };
+  setTimeout(tick, 2200);
+});
+
+/* Lead → Lucro */
+$$('.pipe').forEach((pipe) => {
+  $$('li', pipe).forEach((li, i) => li.style.setProperty('--i', i));
+  const btns = $$('.pipe-tabs button', pipe);
+  btns.forEach((b) => b.addEventListener('click', () => {
+    pipe.dataset.mode = b.dataset.m;
+    btns.forEach((x) => x.setAttribute('aria-pressed', x === b));
+  }));
+  // Mostra a virada sozinho na primeira vez que aparece
+  const once = new IntersectionObserver(([e]) => {
+    if (!e.isIntersecting) return;
+    once.disconnect();
+    setTimeout(() => btns[1]?.click(), 1400);
+  }, { threshold: 0.6 });
+  once.observe(pipe);
+});
+
+/* Antes × depois */
+$$('.ba').forEach((ba) => {
+  const r = $('.ba-range', ba);
+  r.addEventListener('input', () => ba.style.setProperty('--p', r.value + '%'));
+});
+
 /* Botões magnéticos (apenas mouse) */
 if (!reduce && matchMedia('(hover: hover)').matches) {
   $$('.magnetic').forEach((b) => {
