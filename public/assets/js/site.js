@@ -28,7 +28,6 @@ function onScroll() {
   const y = scrollY;
   const max = doc.scrollHeight - innerHeight;
   header.classList.toggle('scrolled', y > 20);
-  header.classList.toggle('hidden', y > 400 && y > lastY && !document.body.classList.contains('menu-open'));
   if (bar) bar.style.transform = `scaleX(${max > 0 ? y / max : 0})`;
   waFloat?.classList.toggle('show', y > 600);
   if (!reduce) spins.forEach((s) => (s.style.transform = `rotate(${y * (+s.dataset.speed || 0.12)}deg)`));
@@ -124,9 +123,7 @@ function scrollFx() {
     const n = Math.round(p * s.words.length);
     if (n !== s.lit) { s.words.forEach((w, i) => w.classList.toggle('on', i < n)); s.lit = n; }
   }
-  let active = -1;
-  cards.forEach((c, i) => { if (c.getBoundingClientRect().top < vh * 0.6) active = i; });
-  cards.forEach((c, i) => c.classList.toggle('on', i === active));
+  cards.forEach((c) => { const r = c.getBoundingClientRect(); c.classList.toggle('on', reduce || (r.top < vh * 0.88 && r.bottom > vh * 0.12)); });
   for (const s of stairs) {
     const r = s.getBoundingClientRect();
     s.style.setProperty('--draw', reduce ? 0 : 1 - clamp01((vh * 0.9 - r.top) / (vh * 0.5)));
@@ -175,6 +172,27 @@ $$('.ba').forEach((ba) => {
   const r = $('.ba-range', ba);
   r.addEventListener('input', () => ba.style.setProperty('--p', r.value + '%'));
 });
+
+/* Luz que segue o mouse, com leve atraso para ficar suave */
+if (!reduce && matchMedia('(hover: hover)').matches) {
+  const glow = document.createElement('div');
+  glow.className = 'glow';
+  glow.setAttribute('aria-hidden', 'true');
+  document.body.append(glow);
+  let tx = innerWidth / 2, ty = innerHeight / 2, gx = tx, gy = ty, running = false;
+  const follow = () => {
+    gx += (tx - gx) * 0.14; gy += (ty - gy) * 0.14;
+    glow.style.transform = `translate3d(${gx}px, ${gy}px, 0)`;
+    running = Math.abs(tx - gx) > 0.5 || Math.abs(ty - gy) > 0.5;
+    if (running) requestAnimationFrame(follow);
+  };
+  addEventListener('pointermove', (e) => {
+    tx = e.clientX; ty = e.clientY;
+    glow.classList.add('on');
+    if (!running) { running = true; requestAnimationFrame(follow); }
+  }, { passive: true });
+  document.documentElement.addEventListener('mouseleave', () => glow.classList.remove('on'));
+}
 
 /* Botões magnéticos (apenas mouse) */
 if (!reduce && matchMedia('(hover: hover)').matches) {
