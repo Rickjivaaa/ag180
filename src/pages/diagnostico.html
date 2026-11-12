@@ -1,0 +1,44 @@
+---
+{"title":"Diagnóstico gratuito · AG|180°","description":"Responda 5 perguntas e descubra qual frente destrava o próximo patamar do seu negócio. Calcule também a margem por venda e o custo de perder clientes."}
+---
+<section class="page-hero" style="padding-bottom:40px">
+  <div class="wrap">
+    <p class="eyebrow reveal">Diagnóstico gratuito</p>
+    <h1 class="reveal">Onde o seu negócio trava?</h1>
+    <p class="lead reveal">Cinco perguntas, dois minutos. No fim, você vê qual frente merece atenção primeiro.</p>
+  </div>
+</section>
+
+<section class="section-sm" style="padding-top:20px">
+  <div class="wrap">
+    <div class="panel quiz reveal" id="quiz" aria-live="polite"><noscript><p>O diagnóstico precisa de JavaScript. <a href="/contato">Fale com a gente</a>.</p></noscript></div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <div class="head reveal"><p class="eyebrow">Calculadoras</p><h2>Dois números que todo dono deveria saber.</h2></div>
+    <div class="calcs" data-stagger>
+      <div class="panel calc">
+        <h3>Quanto sobra de cada venda?</h3><p>Faturar mais nem sempre é ganhar mais. Escolha um serviço e coloque os números dele.</p>
+        <form class="form" data-calc="margem">
+          <div class="field"><label for="c1">Preço de venda (R$)</label><input id="c1" name="preco" inputmode="decimal" value="500"></div>
+          <div class="field"><label for="c2">Custo direto (R$)</label><input id="c2" name="custo" inputmode="decimal" value="180"></div>
+          <div class="field"><label for="c3">Impostos (%)</label><input id="c3" name="impostos" inputmode="decimal" value="12"></div>
+          <div class="field"><label for="c4">Cartão e comissão (%)</label><input id="c4" name="taxas" inputmode="decimal" value="10"></div>
+        </form>
+        <div class="calc-out" aria-live="polite"></div>
+      </div>
+      <div class="panel calc">
+        <h3>Quanto custa perder um cliente?</h3><p>Cliente que sai em silêncio não aparece no caixa do mês, mas aparece no do ano.</p>
+        <form class="form" data-calc="churn">
+          <div class="field"><label for="d1">Clientes que deixam de comprar por mês</label><input id="d1" name="saem" inputmode="decimal" value="10"></div>
+          <div class="field"><label for="d2">Ticket médio (R$)</label><input id="d2" name="ticket" inputmode="decimal" value="350"></div>
+          <div class="field full"><label for="d3">Compras por cliente no ano</label><input id="d3" name="compras" inputmode="decimal" value="4"></div>
+        </form>
+        <div class="calc-out" aria-live="polite"></div>
+      </div>
+    </div>
+    <p class="placeholder-note">Valores orientativos. Nada do que você digita é guardado.</p>
+  </div>
+</section>
