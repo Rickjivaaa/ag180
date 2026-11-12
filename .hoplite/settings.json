@@ -1,0 +1,6 @@
+{
+  "scripts": {
+    "run": "node build.mjs && python3 scripts/preview-server.py"
+  },
+  "ports": { "preview": 4174 }
+}
